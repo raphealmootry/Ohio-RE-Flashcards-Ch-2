@@ -1,87 +1,84 @@
 import streamlit as st
+import pandas as pd
 
-st.set_page_config(page_title="Ohio RE Flashcards: Ch 2", layout="centered")
+st.set_page_config(page_title="Ohio RE Exam Prep", layout="centered")
 
-# 1. CUSTOMIZABLE TERM BANK (Easy to add/subtract here)
+# 1. DATA PERSISTENCE (Management Logic)
 if 'cards' not in st.session_state:
     st.session_state.cards = [
-        {"term": "Land", "def": "The earth's surface extending downward to the center of the earth and upward to infinity, including permanent natural objects."},
-        {"term": "Real Estate", "def": "Land plus all human-made improvements to the land that are permanently attached to it."},
-        {"term": "Real Property", "def": "Real estate plus the 'Bundle of Legal Rights' (PUEEE)."},
-        {"term": "Bundle of Legal Rights", "def": "Possession, Use, Enjoyment, Exclusion, and Enclosure/Disposition."},
-        {"term": "Situs", "def": "Economic characteristic: Area preference or location based on people's choices."},
-        {"term": "Chattels / Personal Property", "def": "Items that do not fit the definition of real property; movable objects (e.g., furniture)."},
-        {"term": "Fixtures", "def": "Personal property so attached to land or a building that it becomes part of the real property by law."},
-        {"term": "Trade Fixtures", "def": "Items installed by a tenant for business use; removable by the tenant before the lease expires."},
-        {"term": "Emblements", "def": "Annual crops (fructus industriales) such as corn or wheat, considered personal property."},
-        {"term": "ORC Title 47, Ch 4735", "def": "Ohio's specific Real Estate License Law governing professional standards."}
+        {"term": "Land", "def": "Surface, subsurface, and air rights."},
+        {"term": "Real Property", "def": "Real estate + Bundle of Rights (PUEEE)."},
+        {"term": "Situs", "def": "Area preference (Economic characteristic)."},
+        {"term": "Title 47, Ch 4735", "def": "Ohio Real Estate License Law."}
     ]
 
-# 2. STATE MANAGEMENT
 if 'card_index' not in st.session_state:
     st.session_state.card_index = 0
 if 'show_def' not in st.session_state:
     st.session_state.show_def = False
 
-# 3. UI STYLING (Energizing Contrast)
-st.markdown("""
-    <style>
-    .stApp { background-color: #f0f4f8; }
-    .flashcard {
-        background-color: #ffffff;
-        border: 4px solid #3b82f6;
-        border-radius: 15px;
-        padding: 50px;
-        text-align: center;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        min-height: 250px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .term-text { color: #1e3a8a; font-size: 32px; font-weight: bold; }
-    .def-text { color: #d97706; font-size: 24px; font-style: italic; }
-    </style>
-""", unsafe_allow_html=True)
-
-# 4. YOUTUBE WIDGET (Chillhop Radio)
+# 2. SIDEBAR - STUDY VIBES & STATS
 st.sidebar.title("🎧 Study Vibe")
 st.sidebar.video("https://www.youtube.com/watch?v=5yx6BWlEVcY")
-st.sidebar.info("Keep the lofi beats running while you grind.")
+st.sidebar.write(f"**Total Cards in Deck:** {len(st.session_state.cards)}")
 
-# 5. FLASHCARD ENGINE
-st.title("🧠 Chapter 2 Flashcards")
-st.write(f"**Card {st.session_state.card_index + 1} of {len(st.session_state.cards)}**")
+# 3. MAIN INTERFACE TABS
+tab1, tab2 = st.tabs(["🎴 Flashcards", "⚙️ Manage Deck"])
 
-current_card = st.session_state.cards[st.session_state.card_index]
+with tab1:
+    if len(st.session_state.cards) > 0:
+        # Progress indicator (Forced dark color for visibility)
+        st.markdown(f"<h3 style='color: #1e3a8a;'>Card {st.session_state.card_index + 1} of {len(st.session_state.cards)}</h3>", unsafe_allow_html=True)
+        
+        current_card = st.session_state.cards[st.session_state.card_index]
 
-# Display Card
-with st.container():
-    st.markdown('<div class="flashcard">', unsafe_allow_html=True)
-    if not st.session_state.show_def:
-        st.markdown(f'<div class="term-text">{current_card["term"]}</div>', unsafe_allow_html=True)
+        # THE FLASHCARD OBJECT
+        # High contrast: Blue border, White background, Dark Blue text
+        with st.container(border=True):
+            if not st.session_state.show_def:
+                st.markdown(f"<h1 style='text-align: center; color: #1e3a8a; padding: 50px;'>{current_card['term']}</h1>", unsafe_allow_html=True)
+            else:
+                st.markdown(f"<h2 style='text-align: center; color: #d97706; padding: 50px;'>{current_card['def']}</h2>", unsafe_allow_html=True)
+
+        # CONTROLS
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            if st.button("⬅️ Prev"):
+                st.session_state.card_index = (st.session_state.card_index - 1) % len(st.session_state.cards)
+                st.session_state.show_def = False
+                st.rerun()
+        with c2:
+            if st.button("🔄 Flip", type="primary", use_container_width=True):
+                st.session_state.show_def = not st.session_state.show_def
+                st.rerun()
+        with c3:
+            if st.button("Next ➡️"):
+                st.session_state.card_index = (st.session_state.card_index + 1) % len(st.session_state.cards)
+                st.session_state.show_def = False
+                st.rerun()
     else:
-        st.markdown(f'<div class="def-text">{current_card["def"]}</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+        st.warning("The deck is empty! Go to the 'Manage Deck' tab to add terms.")
 
-st.write("---")
+with tab2:
+    st.header("Deck Management")
+    
+    # ADD NEW CARD
+    with st.expander("➕ Add New Term"):
+        new_term = st.text_input("Term")
+        new_def = st.text_area("Definition")
+        if st.button("Add to Deck"):
+            if new_term and new_def:
+                st.session_state.cards.append({"term": new_term, "def": new_def})
+                st.success(f"Added: {new_term}")
+                st.rerun()
 
-# Navigation Buttons
-col1, col2, col3 = st.columns(3)
-with col1:
-    if st.button("⬅️ Previous"):
-        st.session_state.card_index = (st.session_state.card_index - 1) % len(st.session_state.cards)
-        st.session_state.show_def = False
-        st.rerun()
-
-with col2:
-    label = "Hide Definition" if st.session_state.show_def else "Reveal Definition"
-    if st.button(label, type="primary"):
-        st.session_state.show_def = not st.session_state.show_def
-        st.rerun()
-
-with col3:
-    if st.button("Next ➡️"):
-        st.session_state.card_index = (st.session_state.card_index + 1) % len(st.session_state.cards)
-        st.session_state.show_def = False
-        st.rerun()
+    # VIEW / DELETE CARDS
+    st.write("---")
+    st.write("### Current Deck")
+    if len(st.session_state.cards) > 0:
+        df_display = pd.DataFrame(st.session_state.cards)
+        st.table(df_display)
+        
+        if st.button("🗑️ Clear Entire Deck"):
+            st.session_state.cards = []
+            st.session_state.card_index = 0
