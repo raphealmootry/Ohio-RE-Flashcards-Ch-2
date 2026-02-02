@@ -25,3 +25,94 @@ if 'cards' not in st.session_state:
         {"q": "16. Land located along the banks of a river. Water rights are:", "opts": "a. littoral rights.\nb. prior appropriation rights.\nc. riparian rights.\nd. hereditaments.", "ans": "c. riparian rights.", "exp": "Riparian = Flowing water (Rivers)."},
         {"q": "17. Bundle of rights entitles owner to all EXCEPT:", "opts": "a. sell property.\nb. exclude utility meter readers.\nc. erect No Trespassing signs.\nd. enjoy profits.", "ans": "b. exclude utility meter readers.", "exp": "Utility companies have access via easements."},
         {"q": "18. According to law, a trade fixture is usually treated as:", "opts": "a. a fixture.\nb. an easement.\nc. personalty.\nd. a license.", "ans": "c. personalty.", "exp": "Personalty is another term for personal property."},
+        {"q": "19. House is located in a busy area. Concern is called:", "opts": "a. physical deterioration.\nb. area preference.\nc. permanence.\nd. immobility.", "ans": "b. area preference.", "exp": "Situs (location preference)."},
+        {"q": "20. Which of the following is considered personal property?", "opts": "a. Fireplace\nb. Awnings\nc. Bathtub\nd. Patio furniture", "ans": "d. Patio furniture", "exp": "Patio furniture is movable (chattel)."}
+    ]
+
+    terms = [
+        {"q": "Accession", "opts": "", "ans": "Acquiring title via annexation or accretion.", "exp": "Way to gain property through adding to it."},
+        {"q": "Accretion", "opts": "", "ans": "Increase in land by soil deposit.", "exp": "The natural adding of land via water."},
+        {"q": "Air Rights", "opts": "", "ans": "Right to use space above earth.", "exp": "Can be leased or sold separately."},
+        {"q": "Annexation", "opts": "", "ans": "Converting personal property to real property.", "exp": "Example: Cement becoming a sidewalk."},
+        {"q": "Appurtenance", "opts": "", "ans": "A right/privilege running with the land.", "exp": "Example: Parking spots or water rights."},
+        {"q": "Area Preference (Situs)", "opts": "", "ans": "Location based on social/economic factors.", "exp": "Most important economic characteristic."},
+        {"q": "Avulsion", "opts": "", "ans": "Sudden removal of soil by nature.", "exp": "Like a flood or landslide."},
+        {"q": "Bundle of Legal Rights", "opts": "", "ans": "PCEED rights.", "exp": "Possession, Control, Enjoyment, Exclusion, Disposition."},
+        {"q": "Chattel", "opts": "", "ans": "Movable personal property.", "exp": "Another name for personalty."},
+        {"q": "Emblements", "opts": "", "ans": "Annual crops (Personal Property).", "exp": "Also known as fructus industriales."},
+        {"q": "Erosion", "opts": "", "ans": "Gradual wearing away of land.", "exp": "Slow natural loss of soil."},
+        {"q": "Fixture", "opts": "", "ans": "Attached personal property becoming real estate.", "exp": "Uses the MARIA legal test."},
+        {"q": "Improvement", "opts": "", "ans": "Artificial attachment to land.", "exp": "Buildings, fences, utilities."},
+        {"q": "Land", "opts": "", "ans": "Surface, subsurface, and air.", "exp": "The earth to the center and up to infinity."},
+        {"q": "Littoral Rights", "opts": "", "ans": "Rights along non-flowing water.", "exp": "Lakes, oceans, seas."},
+        {"q": "Manufactured Housing", "opts": "", "ans": "Built off-site.", "exp": "Personal property until permanently affixed."},
+        {"q": "Nonhomogeneity", "opts": "", "ans": "Uniqueness of land.", "exp": "Physical characteristic of land."},
+        {"q": "Personal Property", "opts": "", "ans": "Movable items (Chattels).", "exp": "Everything not real property."},
+        {"q": "Prior Appropriation", "opts": "", "ans": "State-controlled water rights.", "exp": "Permit-based water law."},
+        {"q": "Real Estate", "opts": "", "ans": "Land + Human-made improvements.", "exp": "The physical property."},
+        {"q": "Real Property", "opts": "", "ans": "Real Estate + Bundle of Rights.", "exp": "The legal property definition."},
+        {"q": "Riparian Rights", "opts": "", "ans": "Rights along flowing water.", "exp": "Rivers and streams."},
+        {"q": "Severance", "opts": "", "ans": "Converting real property to personal property.", "exp": "Example: Cutting down a tree."},
+        {"q": "Subsurface Rights", "opts": "", "ans": "Rights below the surface.", "exp": "Minerals, oil, and gas."},
+        {"q": "Surface Rights", "opts": "", "ans": "Rights limited to the surface.", "exp": "Owner only owns the top layer."},
+        {"q": "Trade Fixture", "opts": "", "ans": "Tenant business equipment.", "exp": "Removable by tenant before lease ends."},
+        {"q": "Water Rights", "opts": "", "ans": "Rights to use water on/next to land.", "exp": "Riparian vs. Littoral."},
+        {"q": "MARIA", "opts": "", "ans": "Fixture Test elements.", "exp": "Method, Adaptability, Relationship, Intention, Agreement."}
+    ]
+    
+    st.session_state.cards = quiz + terms
+    random.shuffle(st.session_state.cards)
+
+# 2. STATE MANAGEMENT
+if 'idx' not in st.session_state: st.session_state.idx = 0
+if 'reveal' not in st.session_state: st.session_state.reveal = False
+
+# 3. SIDEBAR
+st.sidebar.title("🎧 Study Vibe")
+st.sidebar.video("https://www.youtube.com/watch?v=5yx6BWlEVcY")
+st.sidebar.metric("Master Deck Size", len(st.session_state.cards))
+
+# 4. TABS
+tab1, tab2 = st.tabs(["🎴 Flashcards", "⚙️ Deck Management"])
+
+with tab1:
+    st.markdown(f"### Card {st.session_state.idx + 1} of {len(st.session_state.cards)}")
+    curr = st.session_state.cards[st.session_state.idx]
+
+    with st.container(border=True):
+        st.markdown(f"#### {curr['q']}")
+        if curr.get('opts'):
+            st.info(curr['opts'])
+        
+        if st.session_state.reveal:
+            st.divider()
+            st.markdown(f"<h3 style='color: #d97706;'>{curr['ans']}</h3>", unsafe_allow_html=True)
+            st.success(f"💡 {curr['exp']}")
+
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        if st.button("⬅️ Previous"):
+            st.session_state.idx = (st.session_state.idx - 1) % len(st.session_state.cards)
+            st.session_state.reveal = False
+            st.rerun()
+    with c2:
+        label = "Hide Answer" if st.session_state.reveal else "Reveal Answer"
+        if st.button(label, type="primary", use_container_width=True):
+            st.session_state.reveal = not st.session_state.reveal
+            st.rerun()
+    with c3:
+        if st.button("Next ➡️"):
+            st.session_state.idx = (st.session_state.idx + 1) % len(st.session_state.cards)
+            st.session_state.reveal = False
+            st.rerun()
+
+with tab2:
+    st.header("Deck Management")
+    st.write("Review the full card list below:")
+    st.dataframe(pd.DataFrame(st.session_state.cards), use_container_width=True)
+    
+    if st.button("🗑️ Reset & Reshuffle Deck"):
+        random.shuffle(st.session_state.cards)
+        st.session_state.idx = 0
+        st.session_state.reveal = False
+        st.rerun()
